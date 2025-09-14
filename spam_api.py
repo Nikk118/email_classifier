@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import joblib
 from nb_model import mulitnomialNB
@@ -10,6 +10,9 @@ CORS(app)
 vectorizer = joblib.load("vectorizer.pkl")
 model = joblib.load("model.pkl")
 
+@app.route("/")
+def home():
+    return render_template("index.html")
 @app.route("/predict", methods=["POST"])
 def predict():
     data = request.get_json()
