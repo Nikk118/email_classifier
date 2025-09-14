@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spam Classifier</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+   
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: #fff;
+      padding: 40px 30px;
+      border-radius: 15px;
+      width: 400px;
+      max-width: 90%;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+      text-align: center;
+      transition: transform 0.3s;
+    }
+
+    .container:hover {
+      transform: translateY(-5px);
+    }
+
+    h2 {
+      margin-bottom: 25px;
+      color: #333;
+      font-weight: 700;
+    }
+
+   
+    textarea {
+      width: 100%;
+      height: 120px;
+      padding: 15px;
+      font-size: 15px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      resize: none;
+      transition: 0.3s;
+    }
+
+    textarea:focus {
+      border-color: #007BFF;
+      box-shadow: 0 0 8px rgba(0,123,255,0.3);
+      outline: none;
+    }
+
+    /* Button */
+    button {
+      margin-top: 20px;
+      padding: 12px 25px;
+      border: none;
+      background: linear-gradient(90deg, #6a11cb, #2575fc);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: linear-gradient(90deg, #2575fc, #6a11cb);
+    }
+
+    #result {
+      margin-top: 25px;
+      font-size: 18px;
+      font-weight: 700;
+      padding: 15px;
+      border-radius: 10px;
+      display: none;
+      transition: 0.3s;
+    }
+
+    #result.spam {
+      background-color: #ffebeb;
+      color: #d32f2f;
+      border: 1px solid #d32f2f;
+    }
+
+    #result.not-spam {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+      border: 1px solid #2e7d32;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Spam Detector</h2>
+    <textarea id="userText" placeholder="Type your message here..."></textarea>
+    <button onclick="checkSpam()">Check</button>
+    <p id="result"></p>
+  </div>
+
+  <script>
+    const textarea = document.getElementById("userText");
+    const resultBox = document.getElementById("result");
+
+  
+    textarea.addEventListener("input", () => {
+      resultBox.style.display = "none";
+      resultBox.className = "";
+      resultBox.innerText = "";
+    });
+
+    async function checkSpam() {
+      const text = textarea.value.trim();
+      if (!text) {
+        alert("Please enter some text!");
+        return;
+      }
+
+      try {
+        const response = await fetch("http://127.0.0.1:5000/predict", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: text })
+        });
+
+        if (!response.ok) throw new Error("Server error");
+
+        const data = await response.json();
+
+    
+        resultBox.style.display = "block";
+
+        if(data.prediction.toLowerCase() === "spam") {
+          resultBox.className = "spam";
+          resultBox.innerText = "Prediction: Spam";
+        } else {
+          resultBox.className = "not-spam";
+          resultBox.innerText = "Prediction: Not Spam";
+        }
+
+      } catch (error) {
+        console.error(error);
+        alert("Error connecting to the server. Make sure Flask is running.");
+      }
+    }
+  </script>
+
+</body>
+</html>
