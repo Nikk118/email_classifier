@@ -123,6 +123,11 @@
       resultBox.innerText = "";
     });
 
+     const backendURL =
+    window.location.hostname === "localhost"
+      ? "http://127.0.0.1:5000"
+      : "https://email-classifier-nbts.onrender.com/";
+
     async function checkSpam() {
       const text = textarea.value.trim();
       if (!text) {
@@ -131,7 +136,7 @@
       }
 
       try {
-        const response = await fetch("http://127.0.0.1:5000/predict", {
+        const response = await fetch(`${backendURL}/predict`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ text: text })
